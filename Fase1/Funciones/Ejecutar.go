@@ -8,6 +8,11 @@ import (
 	"strings"
 )
 
+func RemoveParam(param string) []string {
+	dato := strings.Split(param, "->")
+	return dato
+}
+
 func InstruccionsCommand(lcomando string) {
 	lcomando = strings.ToLower(lcomando)
 	if strings.HasPrefix(lcomando, "#") {
@@ -18,7 +23,7 @@ func InstruccionsCommand(lcomando string) {
 		var pausa string
 		fmt.Scanf("%s\n", &pausa)
 	} else if strings.HasPrefix(lcomando, "mkdisk") {
-		CreateDisk()
+		CreateDisk(lcomando)
 	} else if strings.HasPrefix(lcomando, "rmdisk") {
 		fmt.Println("RMDISK")
 	} else if strings.HasPrefix(lcomando, "fdisk") {
@@ -38,11 +43,11 @@ func Exec(comando string) {
 	if len(parametros) > 1 {
 		fmt.Println("Un parametro desconocido")
 	} else {
-		Verificarparametro(parametros)
+		verificarparametro(parametros)
 	}
 }
 
-func Verificarparametro(parametro []string) {
+func verificarparametro(parametro []string) {
 	if strings.HasPrefix(parametro[0], "-path->") {
 		ruta := strings.ReplaceAll(parametro[0], "-path->", "")
 		AbrirArchivo(ruta)
