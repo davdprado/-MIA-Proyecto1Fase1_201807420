@@ -1,0 +1,5 @@
+package Funciones
+
+func CreateDisk() {
+
+}

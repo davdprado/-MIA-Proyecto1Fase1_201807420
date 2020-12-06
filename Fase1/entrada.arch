@@ -1,0 +1,20 @@
+#Contenido de calificacion.arch
+#Crea tres discos de 30 Mb
+mkdisk -Size->30 -unit->M -path->/home/Disco1.dsk
+mkdisk -unit->K -path->/home/Disco2.dsk -size->30720
+mkDisk -size->30 -patH->/home/archivos/Disco 3.dsk
+
+#Debería dar error
+mkDisk -param->x -size->30 -patH->/home/Disco4.dsk -fit->BF
+pause
+
+#Elimina un disco, el primero debería dar error
+rmDisk -patH->/home/Disco4.dsk
+rmDisk -patH->/home/archivos/Disco3.dsk
+
+#Crear particiones
+fdisk –Size->10240 –path->/home/Disco1.dsk –name->Part1
+fdisk -type->E –path->/home/Disco1.dsk –Unit->K –name->Part2 –size->10240
+fdisk -type->L –path->/home/Disco1.dsk –Unit->K –name->Part3 –size->10240
+fdisk –Size->10240 –path->/home/Disco2.dsk –name->Part1
+fdisk –Size->10240 –path->/home/Disco2.dsk –name->Part1
