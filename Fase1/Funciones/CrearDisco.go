@@ -1,7 +1,11 @@
 package Funciones
 
 import (
+	"bytes"
+	"encoding/binary"
 	"fmt"
+	"log"
+	"os"
 	"strconv"
 	"strings"
 )
@@ -61,5 +65,39 @@ func DiskParamVerification(param []string) {
 }
 
 func CreateBin(ruta string, size int, fit string, unida string) {
-	fmt.Println("Crear archivo binario")
+	var direccion = ""
+	arreglo := strings.Split(ruta, "/")
+	for i := 0; i < (len(arreglo) - 1); i++ {
+		direccion = direccion + arreglo[i] + "/"
+	}
+	err := os.MkdirAll(direccion, 0777)
+	file, err := os.Create(ruta)
+	if err != nil {
+		log.Fatal(err)
+	}
+	// llenar el archivo con datos
+	var temporal int8 = 0
+	s := &temporal
+	var binario bytes.Buffer
+	binary.Write(&binario, binary.BigEndian, s)
+	if unida == "k" {
+		for i := 0; i < size*1024; i++ {
+			LlenardeBytes(file, binario.Bytes())
+		}
+	} else if unida == "m" {
+		for i := 0; i < size*1024*1024; i++ {
+			LlenardeBytes(file, binario.Bytes())
+		}
+	}
+
+	file.Close()
+
+}
+
+func LlenardeBytes(file *os.File, bytes []byte) {
+	_, err := file.Write(bytes)
+
+	if err != nil {
+		log.Fatal(err)
+	}
 }

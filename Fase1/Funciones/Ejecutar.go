@@ -50,13 +50,19 @@ func Exec(comando string) {
 func verificarparametro(parametro []string) {
 	if strings.HasPrefix(parametro[0], "-path->") {
 		ruta := strings.ReplaceAll(parametro[0], "-path->", "")
-		AbrirArchivo(ruta)
+		if ExisteRuta(ruta) {
+			AbrirArchivo(ruta)
+		} else {
+			fmt.Println("No se encuentra la ruta")
+		}
+
 	} else {
 		fmt.Println("Parametro Desconocido")
 	}
 }
 
 func AbrirArchivo(ruta string) {
+	ruta = strings.ReplaceAll(ruta, "\"", "")
 	file, err := os.Open(ruta)
 	if err != nil {
 		log.Fatal(err)
@@ -68,4 +74,15 @@ func AbrirArchivo(ruta string) {
 		fmt.Println(scanner.Text())
 		InstruccionsCommand(scanner.Text())
 	}
+}
+
+func ExisteRuta(path string) bool {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true
+	}
+	if os.IsNotExist(err) {
+		return false
+	}
+	return false
 }
