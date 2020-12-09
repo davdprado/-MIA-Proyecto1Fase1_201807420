@@ -1,8 +1,8 @@
 #Contenido de calificacion.arch
 #Crea tres discos de 30 Mb
-mkdisk -Size->30 -unit->M -path->/home/Disco1.dsk
-mkdisk -unit->K -path->/home/Disco2.dsk -size->30720
-mkDisk -size->30 -patH->/home/archivos/Disco3.dsk
+mkdisk -Size->1 -unit->M -path->/home/Disco1.dsk
+mkdisk -unit->K -path->/home/Disco2.dsk -size->100
+mkDisk -size->1 -patH->/home/archivos/Disco3.dsk
 
 #Debería dar error
 mkDisk -param->x -size->30 -patH->/home/Disco4.dsk -fit->BF

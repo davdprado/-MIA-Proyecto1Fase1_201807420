@@ -80,14 +80,12 @@ func CreateBin(ruta string, size int, fit string, unida string) {
 	s := &temporal
 	var binario bytes.Buffer
 	binary.Write(&binario, binary.BigEndian, s)
+
 	if unida == "k" {
-		for i := 0; i < size*1024; i++ {
-			LlenardeBytes(file, binario.Bytes())
-		}
+
+		file.Seek(int64(size)*1024, 0)
 	} else if unida == "m" {
-		for i := 0; i < size*1024*1024; i++ {
-			LlenardeBytes(file, binario.Bytes())
-		}
+		file.Seek(int64(size)*1024*1024, 0)
 	}
 
 	file.Close()
