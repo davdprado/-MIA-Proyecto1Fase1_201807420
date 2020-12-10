@@ -26,9 +26,8 @@ func InstruccionsCommand(lcomando string) {
 		CreateDisk(lcomando)
 	} else if strings.HasPrefix(lcomando, "rmdisk") {
 		EliminarDisco(lcomando)
-		fmt.Println("RMDISK")
 	} else if strings.HasPrefix(lcomando, "fdisk") {
-		fmt.Println("FKDISK ")
+		AdminDisco(lcomando)
 	} else if strings.HasPrefix(lcomando, "mount") {
 		fmt.Println("mount montar disco")
 	} else if strings.HasPrefix(lcomando, "unmount") {

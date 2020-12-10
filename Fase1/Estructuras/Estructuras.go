@@ -2,8 +2,8 @@ package Estructuras
 
 type Particion struct {
 	PartStatus bool
-	PartType   byte
-	PartFit    byte
+	PartType   [2]byte
+	PartFit    [2]byte
 	PartStart  int64
 	PartSize   int64
 	PartName   [16]byte
@@ -38,9 +38,9 @@ type ParticionLogica struct {
 type Mbr struct {
 	Mtamano      int64
 	Mfecha       [20]byte
-	Mdisco       int64
+	MdiscoA      int64
+	Mfit         [2]byte
 	MParticiones [4]Particion
-	Mlibre       int64
 }
 type EBR struct {
 	PartStatus      bool

@@ -3,14 +3,13 @@ package Funciones
 import (
 	"bytes"
 	"encoding/binary"
-	"encoding/gob"
 	"fmt"
 	"log"
+	"math/rand"
 	"os"
 	"strconv"
 	"strings"
 	"time"
-	"unsafe"
 
 	"../Estructuras"
 )
@@ -34,7 +33,6 @@ func DiskParamVerification(param []string) {
 	for _, parametro := range param {
 		if strings.HasPrefix(parametro, "-path->") {
 			ruta := strings.ReplaceAll(parametro, "-path->", "")
-			fmt.Println(ruta)
 			Directorio = ruta
 		} else if strings.HasPrefix(parametro, "-size->") {
 			tamo := strings.ReplaceAll(parametro, "-size->", "")
@@ -55,7 +53,7 @@ func DiskParamVerification(param []string) {
 			}
 
 		} else if strings.HasPrefix(parametro, "-fit->") {
-			aju := strings.ReplaceAll(parametro, "-unit->", "")
+			aju := strings.ReplaceAll(parametro, "-fit->", "")
 			if aju == "bf" || aju == "wf" || aju == "ff" {
 				fit = aju
 			} else {
@@ -68,7 +66,7 @@ func DiskParamVerification(param []string) {
 		}
 	}
 	CreateBin(Directorio, tam, fit, unidad)
-	fmt.Printf("Disco creado en %s de tamaño: %d %s con el ajuste %s\n", Directorio, tam, unidad, fit)
+	//fmt.Printf("Disco creado en %s de tamaño: %d %s con el ajuste %s\n", Directorio, tam, unidad, fit)
 
 }
 
@@ -85,50 +83,40 @@ func CreateBin(ruta string, size int, fit string, unida string) {
 	}
 	// llenar el archivo con datos
 	var temporal int8 = 0
-
+	var tamao int64
 	s := &temporal
 	var binario bytes.Buffer
 	binary.Write(&binario, binary.BigEndian, s)
 	if unida == "k" {
 		file.Seek(int64(size)*1024, 0)
+		tamao = int64(size * 1024)
 		LlenardeBytes(file, binario.Bytes())
 
 	} else if unida == "m" {
 		file.Seek(int64(size)*1024*1024, 0)
+		tamao = int64(size * 1024 * 1024)
 		LlenardeBytes(file, binario.Bytes())
 	}
 	t := time.Now()
 	fecha := fmt.Sprintf("%d/%02d/%02d %02d:%02d:%02d",
 		t.Year(), t.Month(), t.Day(),
 		t.Hour(), t.Minute(), t.Second())
-	var arr [20]byte
-	for i, j := range []byte(fecha) {
-		arr[i] = byte(j)
-	}
 
-	discoNuevo := Estructuras.Disco{}
-	discoNuevo.Identificador = byte(iddisco)
-	iddisco++
-	var tamao int64
 	file.Seek(0, 0)
-	discoTemp := Estructuras.Mbr{Mfecha: arr}
-	tamao = int64(unsafe.Sizeof(discoTemp))
-	discoTemp.Mtamano = tamao
-	discoTemp.Mlibre = discoTemp.Mtamano
 
-	var bufferDisc bytes.Buffer
-	enc := gob.NewEncoder(&bufferDisc)
-	enc.Encode(discoTemp)
-	files, err := os.OpenFile(ruta, os.O_RDWR, 0777)
-	files.Seek(0, 0)
-	escribirBytes(file, bufferDisc.Bytes())
-	defer files.Close()
-	if err != nil {
-		log.Fatal(err)
-	}
+	discoTemp := Estructuras.Mbr{}
+	copy(discoTemp.Mfecha[:], fecha)
+	copy(discoTemp.Mfit[:], fit)
+	discoTemp.MdiscoA = rand.Int63n(1000)
+	//tamao = int64(unsafe.Sizeof(discoTemp))
+	discoTemp.Mtamano = tamao
+
+	var bufferDisco bytes.Buffer
+	binary.Write(&bufferDisco, binary.BigEndian, &discoTemp)
+	escribirBytes(file, bufferDisco.Bytes())
 
 	file.Close()
-
+	//fmt.Printf("Disco: %d Fecha: %s Fit: %s Tamaño: %d\n", discoTemp.MdiscoA, fecha, fit, tamao)
 }
 
 func LlenardeBytes(file *os.File, bytes []byte) {
