@@ -8,13 +8,17 @@ mkDisk -size->1 -patH->/home/archivos/Disco3.dsk
 mkDisk -param->x -size->30 -patH->/home/Disco4.dsk -fit->BF
 pause
 
+rmDisk -patH->/home/Disco1.dsk
+rmDisk -patH->/home/Disco2.dsk
+rmDisk -patH->/home/archivos/Disco3.dsk
+
 #Elimina un disco, el primero debería dar error
 rmDisk -patH->/home/Disco4.dsk
 rmDisk -patH->/home/archivos/Disco3.dsk
 
 #Crear particiones
-fdisk –Size->10240 –path->/home/Disco1.dsk –name->Part1
+fdisk -Size->10240 –path->/home/Disco1.dsk –name->Part1
 fdisk -type->E –path->/home/Disco1.dsk –Unit->K –name->Part2 –size->10240
 fdisk -type->L –path->/home/Disco1.dsk –Unit->K –name->Part3 –size->10240
-fdisk –Size->10240 –path->/home/Disco2.dsk –name->Part1
-fdisk –Size->10240 –path->/home/Disco2.dsk –name->Part1
+fdisk -Size->10240 –path->/home/Disco2.dsk –name->Part1
+fdisk -Size->10240 –path->/home/Disco2.dsk –name->Part1

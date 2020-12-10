@@ -3,12 +3,19 @@ package Funciones
 import (
 	"bytes"
 	"encoding/binary"
+	"encoding/gob"
 	"fmt"
 	"log"
 	"os"
 	"strconv"
 	"strings"
+	"time"
+	"unsafe"
+
+	"../Estructuras"
 )
+
+var iddisco = 0
 
 func CreateDisk(comando string) {
 	comando = strings.ReplaceAll(comando, "mkdisk ", "")
@@ -60,8 +67,9 @@ func DiskParamVerification(param []string) {
 			return
 		}
 	}
-	fmt.Printf("Disco creado en %s de tamaño: %d %s con el ajuste %s\n", Directorio, tam, unidad, fit)
 	CreateBin(Directorio, tam, fit, unidad)
+	fmt.Printf("Disco creado en %s de tamaño: %d %s con el ajuste %s\n", Directorio, tam, unidad, fit)
+
 }
 
 func CreateBin(ruta string, size int, fit string, unida string) {
@@ -77,15 +85,46 @@ func CreateBin(ruta string, size int, fit string, unida string) {
 	}
 	// llenar el archivo con datos
 	var temporal int8 = 0
+
 	s := &temporal
 	var binario bytes.Buffer
 	binary.Write(&binario, binary.BigEndian, s)
-
 	if unida == "k" {
-
 		file.Seek(int64(size)*1024, 0)
+		LlenardeBytes(file, binario.Bytes())
+
 	} else if unida == "m" {
 		file.Seek(int64(size)*1024*1024, 0)
+		LlenardeBytes(file, binario.Bytes())
+	}
+	t := time.Now()
+	fecha := fmt.Sprintf("%d/%02d/%02d %02d:%02d:%02d",
+		t.Year(), t.Month(), t.Day(),
+		t.Hour(), t.Minute(), t.Second())
+	var arr [20]byte
+	for i, j := range []byte(fecha) {
+		arr[i] = byte(j)
+	}
+
+	discoNuevo := Estructuras.Disco{}
+	discoNuevo.Identificador = byte(iddisco)
+	iddisco++
+	var tamao int64
+	file.Seek(0, 0)
+	discoTemp := Estructuras.Mbr{Mfecha: arr}
+	tamao = int64(unsafe.Sizeof(discoTemp))
+	discoTemp.Mtamano = tamao
+	discoTemp.Mlibre = discoTemp.Mtamano
+
+	var bufferDisc bytes.Buffer
+	enc := gob.NewEncoder(&bufferDisc)
+	enc.Encode(discoTemp)
+	files, err := os.OpenFile(ruta, os.O_RDWR, 0777)
+	files.Seek(0, 0)
+	escribirBytes(file, bufferDisc.Bytes())
+	defer files.Close()
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	file.Close()
@@ -93,6 +132,14 @@ func CreateBin(ruta string, size int, fit string, unida string) {
 }
 
 func LlenardeBytes(file *os.File, bytes []byte) {
+	_, err := file.Write(bytes)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func escribirBytes(file *os.File, bytes []byte) {
 	_, err := file.Write(bytes)
 
 	if err != nil {

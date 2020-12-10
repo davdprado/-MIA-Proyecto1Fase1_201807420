@@ -8,7 +8,24 @@ type Particion struct {
 	PartSize   int64
 	PartName   [16]byte
 }
+type Disco struct {
+	Identificador byte
+	Letra         byte
+	Path          string
+	Particiones   [100]ParticionMontada
+}
 
+//Fdisk lleva los datos del comando fdisk
+type Fdisk struct {
+	Size   int64
+	Unit   byte
+	Path   string
+	Type   byte
+	Fit    string
+	Delete string
+	Name   string
+	Add    int64
+}
 type ParticionLogica struct {
 	PartStatus bool
 	PartType   byte
@@ -19,8 +36,8 @@ type ParticionLogica struct {
 }
 
 type Mbr struct {
-	Mtamaño      int64
-	Mfecha       [15]byte
+	Mtamano      int64
+	Mfecha       [20]byte
 	Mdisco       int64
 	MParticiones [4]Particion
 	Mlibre       int64
