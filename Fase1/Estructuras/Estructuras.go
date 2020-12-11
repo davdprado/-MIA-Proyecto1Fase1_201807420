@@ -1,7 +1,7 @@
 package Estructuras
 
 type Particion struct {
-	PartStatus bool
+	PartStatus byte
 	PartType   [2]byte
 	PartFit    [2]byte
 	PartStart  int64
@@ -9,10 +9,13 @@ type Particion struct {
 	PartName   [16]byte
 }
 type Disco struct {
-	Identificador byte
-	Letra         byte
-	Path          string
-	Particiones   [100]ParticionMontada
+	Identificador  int
+	Path, Fecha    string
+	TamañoD, Asign int64
+	Fit            string
+	Tp             int64
+	IDs            int64
+	Particiones    []ParticionMontada
 }
 
 //Fdisk lleva los datos del comando fdisk
@@ -36,6 +39,7 @@ type ParticionLogica struct {
 }
 
 type Mbr struct {
+	Mbit         int64
 	Mtamano      int64
 	Mfecha       [20]byte
 	MdiscoA      int64
@@ -59,8 +63,11 @@ type Mkdisk struct {
 }
 
 type ParticionMontada struct {
-	Identificador string
-	Path, Name    string
-	Estado        bool
-	EstadoEscrito bool
+	Identificador   string
+	Name, Tipo, Fit string
+	Estado          byte
+	EstadoEscrito   bool
+	Porcentaje      float32
+	Tamaño          int64
+	BitStar         int64
 }

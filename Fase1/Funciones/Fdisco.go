@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
-	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -101,18 +100,6 @@ func AdminParamVerification(param []string) {
 }
 
 func secondRevision(ruta string, nombrep string, size int, unidad string, isdelete bool, isadd bool, tborrado string, valadd int, tipoParticion string, ajuste string) {
-	file, err := os.Open(ruta)
-	defer file.Close()
-	if err != nil {
-		log.Fatal(err)
-	}
-	discotemp := Estructuras.Mbr{}
-	var tazo int = int(unsafe.Sizeof(discotemp))
-	file.Seek(0, 0)
-	discotemp = leerDisco(file, tazo, discotemp)
-	fmt.Printf("Fecha: %s Tamaño: %d Random: %d\n", discotemp.Mfecha, discotemp.Mtamano, discotemp.MdiscoA)
-	defer file.Close()
-
 	if isadd || isdelete {
 		if isadd {
 			isdelete = false
@@ -126,22 +113,57 @@ func secondRevision(ruta string, nombrep string, size int, unidad string, isdele
 	} else if isadd {
 		ModificarParticion()
 	} else {
-		CrearParticion(nombrep, size, unidad, ajuste, tipoParticion, discotemp)
+		CrearParticion(nombrep, size, unidad, ajuste, tipoParticion, ruta)
 	}
 
 }
-func CrearParticion(nombre string, tama int, tipoF string, tipotam string, tipoP string, disco Estructuras.Mbr) {
+func CrearParticion(nombre string, tama int, tipoF string, tipotam string, tipoP string, ruta string) {
+	file, err := os.OpenFile(ruta, os.O_RDWR, 0777)
+	defer file.Close()
+	if err != nil {
+		panic(err)
+	}
+	discotemp := Estructuras.Mbr{}
+	var tazo int = int(unsafe.Sizeof(discotemp))
+	file.Seek(0, 0)
+	discotemp = leerDisco(file, tazo, discotemp)
+
+	if TieneExtend(discotemp) && tipoP == "e" {
+		fmt.Println("YA EXISTE EXTENDIDA en este disco")
+		file.Close()
+		return
+	}
+	Disk := BuscarDisco(ruta)
+	particionnnn := Estructuras.ParticionMontada{}
+	particionnnn.Estado = '1'
+	particionnnn.Tamaño = int64(tama)
+	particionnnn.Name = nombre
+	particionnnn.Tipo = tipoP
+	particionnnn.Fit = tipoF
+	particionnnn.EstadoEscrito = false
+	Disk.Particiones = append(Disk.Particiones, particionnnn)
+	//fmt.Printf("Fecha: %s Tamaño: %d Random: %d\n", discotemp.Mfecha, discotemp.Mtamano, discotemp.MdiscoA)
 	particiontemp := Estructuras.Particion{}
-	particiontemp.PartStatus = true
+	particiontemp.PartStatus = '1'
 	copy(particiontemp.PartType[:], tipoP)
 	copy(particiontemp.PartFit[:], tipoF)
 	copy(particiontemp.PartName[:], nombre)
 	particiontemp.PartSize = int64(tama)
-	partiNo := len(disco.MParticiones)
-	if disco.MParticiones {
-
+	for i := 0; i < 4; i++ {
+		if discotemp.MParticiones[i].PartStatus == '0' {
+			discotemp.MParticiones[i] = particiontemp
+			break
+		}
 	}
-	fmt.Println("Crear la P")
+
+	file.Seek(0, 0)
+	var bufferDisco bytes.Buffer
+	binary.Write(&bufferDisco, binary.BigEndian, &discotemp)
+	escribirBytes(file, bufferDisco.Bytes())
+	file.Close()
+	fmt.Println("-------")
+	fmt.Println(ListaDiscos)
+	fmt.Println("------")
 }
 func EliminarParticion() {
 	fmt.Println("Eliminar la P")
@@ -156,7 +178,7 @@ func leerDisco(file *os.File, size int, disco Estructuras.Mbr) Estructuras.Mbr {
 	buffer := bytes.NewBuffer(data)
 	err := binary.Read(buffer, binary.BigEndian, &disco)
 	if err != nil {
-		log.Fatal("binary.Read failed", err)
+		panic(err)
 	}
 	return disco
 }
@@ -165,8 +187,30 @@ func leerBytes(file *os.File, numero int) []byte {
 
 	_, err := file.Read(bytes)
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
 	return bytes
+}
+
+func BuscarDisco(ruta string) Estructuras.Disco {
+	for _, discos := range ListaDiscos {
+		if discos.Path == ruta {
+			return discos
+		}
+	}
+	return ListaDiscos[100]
+}
+
+func TieneExtend(disco Estructuras.Mbr) bool {
+	var auxt [2]byte
+	for i, j := range []byte("e") {
+		auxt[i] = byte(j)
+	}
+	for i := 0; i < 4; i++ {
+		if disco.MParticiones[i].PartType == auxt {
+			return true
+		}
+	}
+	return false
 }

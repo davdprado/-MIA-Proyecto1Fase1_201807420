@@ -19,3 +19,8 @@ fdisk -type->E -path->/home/Disco1.dsk -Unit->K -name->Part2 -size->10240
 fdisk -type->L -path->/home/Disco1.dsk -Unit->K -name->Part3 -size->10240
 fdisk -Size->10240 -path->/home/Disco2.dsk -name->Part1
 fdisk -Size->10240 -path->/home/Disco2.dsk -name->Part1
+
+pause
+rmDisk -patH->/home/Disco1.dsk
+rmDisk -patH->/home/Disco2.dsk
+rmDisk -patH->/home/archivos/otrawea/Disco3.dsk

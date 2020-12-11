@@ -10,11 +10,13 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unsafe"
 
 	"../Estructuras"
 )
 
-var iddisco = 0
+var iddisco = 97
+var ListaDiscos []Estructuras.Disco
 
 func CreateDisk(comando string) {
 	comando = strings.ReplaceAll(comando, "mkdisk ", "")
@@ -71,6 +73,7 @@ func DiskParamVerification(param []string) {
 }
 
 func CreateBin(ruta string, size int, fit string, unida string) {
+	Disk := Estructuras.Disco{}
 	var direccion = ""
 	arreglo := strings.Split(ruta, "/")
 	for i := 0; i < (len(arreglo) - 1); i++ {
@@ -97,19 +100,38 @@ func CreateBin(ruta string, size int, fit string, unida string) {
 		tamao = int64(size * 1024 * 1024)
 		LlenardeBytes(file, binario.Bytes())
 	}
+	Disk.TamañoD = tamao
 	t := time.Now()
 	fecha := fmt.Sprintf("%d/%02d/%02d %02d:%02d:%02d",
 		t.Year(), t.Month(), t.Day(),
 		t.Hour(), t.Minute(), t.Second())
-
+	NumRandom := rand.Int63n(10000)
+	Disk.Fecha = fecha
+	Disk.Asign = NumRandom
+	Disk.Identificador = iddisco
+	iddisco = iddisco + 1
+	Disk.Fit = fit
+	Disk.Path = ruta
+	Disk.IDs = 1
+	ListaDiscos = append(ListaDiscos, Disk)
+	/* fmt.Println("-------")
+	fmt.Println(ListaDiscos)
+	fmt.Println("------") */
 	file.Seek(0, 0)
 
 	discoTemp := Estructuras.Mbr{}
 	copy(discoTemp.Mfecha[:], fecha)
 	copy(discoTemp.Mfit[:], fit)
-	discoTemp.MdiscoA = rand.Int63n(1000)
-	//tamao = int64(unsafe.Sizeof(discoTemp))
+
+	discoTemp.MdiscoA = NumRandom
+	bito := int64(unsafe.Sizeof(discoTemp))
 	discoTemp.Mtamano = tamao
+	discoTemp.Mbit = bito
+	for i := 0; i < 4; i++ {
+		discoTemp.MParticiones[i].PartStatus = '0'
+		discoTemp.MParticiones[i].PartStart = -1
+		discoTemp.MParticiones[i].PartSize = 0
+	}
 
 	var bufferDisco bytes.Buffer
 	binary.Write(&bufferDisco, binary.BigEndian, &discoTemp)
@@ -131,6 +153,6 @@ func escribirBytes(file *os.File, bytes []byte) {
 	_, err := file.Write(bytes)
 
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 }
