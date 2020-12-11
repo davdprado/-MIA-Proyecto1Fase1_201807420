@@ -1,0 +1,39 @@
+digraph MBR {
+ graph [ label = "Reporte MBR"];
+ node [shape = plain]
+ randir =TB
+mbr[label=<
+<table border="1" cellborder="1" cellspacing="0">
+<tr><td colspan='2'>MBR Disco x</td></tr>͜
+<tr><td>mbr_tamaño</td><td>1048576</td></tr>
+<tr><td>mbr_fecha</td><td>2020/12/11 16:49:08</td></tr>
+<tr><td>mbr_disk_signature</td><td>9410</td></tr>
+<tr><td>Particiones</td></tr>
+<tr><td>Part_status</td><td>1</td></tr>
+<tr><td>Part_Type</td><td>p</td></tr>
+<tr><td>Part_start</td><td>216</td></tr>
+<tr><td>Part_size</td><td>10240</td></tr>
+<tr><td>Part_name</td><td>part1</td></tr>
+<tr><td>Part_name</td><td>k</td></tr>
+<tr><td>Part_status</td><td>1</td></tr>
+<tr><td>Part_Type</td><td>e</td></tr>
+<tr><td>Part_start</td><td>256</td></tr>
+<tr><td>Part_size</td><td>10240</td></tr>
+<tr><td>Part_name</td><td>part2</td></tr>
+<tr><td>Part_name</td><td>k</td></tr>
+<tr><td>Part_status</td><td>1</td></tr>
+<tr><td>Part_Type</td><td>l</td></tr>
+<tr><td>Part_start</td><td>296</td></tr>
+<tr><td>Part_size</td><td>10240</td></tr>
+<tr><td>Part_name</td><td>part3</td></tr>
+<tr><td>Part_name</td><td>k</td></tr>
+<tr><td>Part_status</td><td>0</td></tr>
+<tr><td>Part_Type</td><td></td></tr>
+<tr><td>Part_start</td><td>-1</td></tr>
+<tr><td>Part_size</td><td>0</td></tr>
+<tr><td>Part_name</td><td></td></tr>
+<tr><td>Part_name</td><td></td></tr>
+
+</table>
+>];
+}
