@@ -1,0 +1,5 @@
+digraph G {
+    node [shape=record];
+
+    5[label="MBR|{Extendida|{EBR|Libre}}|Libre|Primaria|Libre"]
+}

@@ -108,7 +108,7 @@ func secondRevision(ruta string, nombrep string, size int, unidad string, isdele
 		}
 	}
 	if isdelete {
-		EliminarParticion()
+		EliminarParticion(nombrep, ruta)
 
 	} else if isadd {
 		ModificarParticion()
@@ -127,13 +127,17 @@ func CrearParticion(nombre string, tama int, tipoF string, tipotam string, tipoP
 	var tazo int = int(unsafe.Sizeof(discotemp))
 	file.Seek(0, 0)
 	discotemp = leerDisco(file, tazo, discotemp)
-
+	if VerificarNombre(discotemp, nombre) {
+		fmt.Println("YA EXISTE Particion")
+		file.Close()
+		return
+	}
 	if TieneExtend(discotemp) && tipoP == "e" {
 		fmt.Println("YA EXISTE EXTENDIDA en este disco")
 		file.Close()
 		return
 	}
-	Disk := BuscarDisco(ruta)
+
 	particionnnn := Estructuras.ParticionMontada{}
 	particionnnn.Estado = '1'
 	particionnnn.Tamaño = int64(tama)
@@ -141,14 +145,21 @@ func CrearParticion(nombre string, tama int, tipoF string, tipotam string, tipoP
 	particionnnn.Tipo = tipoP
 	particionnnn.Fit = tipoF
 	particionnnn.EstadoEscrito = false
-	Disk.Particiones = append(Disk.Particiones, particionnnn)
+	//Disk.Particiones = append(Disk.Particiones, particionnnn)
 	//fmt.Printf("Fecha: %s Tamaño: %d Random: %d\n", discotemp.Mfecha, discotemp.Mtamano, discotemp.MdiscoA)
 	particiontemp := Estructuras.Particion{}
 	particiontemp.PartStatus = '1'
 	copy(particiontemp.PartType[:], tipoP)
 	copy(particiontemp.PartFit[:], tipoF)
 	copy(particiontemp.PartName[:], nombre)
+	if tipotam == "k" {
+		tama = tama * 1024
+	} else if tipotam == "m" {
+		tama = tama * 1024 * 1024
+	}
 	particiontemp.PartSize = int64(tama)
+	particiontemp.PartStart = discotemp.Mbit
+	discotemp.Mbit = int64(unsafe.Sizeof(particiontemp)) + discotemp.Mbit
 	for i := 0; i < 4; i++ {
 		if discotemp.MParticiones[i].PartStatus == '0' {
 			discotemp.MParticiones[i] = particiontemp
@@ -161,13 +172,40 @@ func CrearParticion(nombre string, tama int, tipoF string, tipotam string, tipoP
 	binary.Write(&bufferDisco, binary.BigEndian, &discotemp)
 	escribirBytes(file, bufferDisco.Bytes())
 	file.Close()
-	fmt.Println("-------")
-	fmt.Println(ListaDiscos)
-	fmt.Println("------")
 }
-func EliminarParticion() {
-	fmt.Println("Eliminar la P")
+func EliminarParticion(nombre string, ruta string) {
+	file, err := os.OpenFile(ruta, os.O_RDWR, 0777)
+	defer file.Close()
+	if err != nil {
+		panic(err)
+	}
+	discotemp := Estructuras.Mbr{}
+	var tazo int = int(unsafe.Sizeof(discotemp))
+	file.Seek(0, 0)
+	discotemp = leerDisco(file, tazo, discotemp)
+	if VerificarNombre(discotemp, nombre) == false {
+		fmt.Println("No Existe  Particion con ese nombre")
+		file.Close()
+		return
+	}
+	//Disk.Particiones = append(Disk.Particiones, particionnnn)
+	//fmt.Printf("Fecha: %s Tamaño: %d Random: %d\n", discotemp.Mfecha, discotemp.Mtamano, discotemp.MdiscoA)
+	particiontemp := Estructuras.Particion{}
+	particiontemp.PartStatus = '0'
+	copy(particiontemp.PartName[:], "Libre")
+	for i := 0; i < 4; i++ {
+		if discotemp.MParticiones[i].PartStatus == '0' {
+			discotemp.MParticiones[i] = particiontemp
+			break
+		}
+	}
 
+	file.Seek(0, 0)
+	var bufferDisco bytes.Buffer
+	binary.Write(&bufferDisco, binary.BigEndian, &discotemp)
+	escribirBytes(file, bufferDisco.Bytes())
+	file.Close()
+	fmt.Println("Particion Eliminada")
 }
 func ModificarParticion() {
 	fmt.Println("Modificar la P")
@@ -193,15 +231,6 @@ func leerBytes(file *os.File, numero int) []byte {
 	return bytes
 }
 
-func BuscarDisco(ruta string) Estructuras.Disco {
-	for _, discos := range ListaDiscos {
-		if discos.Path == ruta {
-			return discos
-		}
-	}
-	return ListaDiscos[100]
-}
-
 func TieneExtend(disco Estructuras.Mbr) bool {
 	var auxt [2]byte
 	for i, j := range []byte("e") {
@@ -209,6 +238,19 @@ func TieneExtend(disco Estructuras.Mbr) bool {
 	}
 	for i := 0; i < 4; i++ {
 		if disco.MParticiones[i].PartType == auxt {
+			return true
+		}
+	}
+	return false
+}
+
+func VerificarNombre(disco Estructuras.Mbr, nombre string) bool {
+	var auxt [16]byte
+	for i, j := range []byte(nombre) {
+		auxt[i] = byte(j)
+	}
+	for i := 0; i < 4; i++ {
+		if disco.MParticiones[i].PartName == auxt {
 			return true
 		}
 	}

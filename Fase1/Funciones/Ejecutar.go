@@ -29,9 +29,11 @@ func InstruccionsCommand(lcomando string) {
 	} else if strings.HasPrefix(lcomando, "fdisk") {
 		AdminDisco(lcomando)
 	} else if strings.HasPrefix(lcomando, "mount") {
-		fmt.Println("mount montar disco")
+		Montaje(lcomando)
 	} else if strings.HasPrefix(lcomando, "unmount") {
-		fmt.Println("unmount desmontar disco")
+		Desmontaje(lcomando)
+	} else if strings.HasPrefix(lcomando, "rep") {
+		VerifiReportes(lcomando)
 	} else {
 		fmt.Println("Instruccion desconocida")
 	}

@@ -14,7 +14,7 @@ type Disco struct {
 	TamañoD, Asign int64
 	Fit            string
 	Tp             int64
-	IDs            int64
+	IDs            int
 	Particiones    []ParticionMontada
 }
 
@@ -63,11 +63,11 @@ type Mkdisk struct {
 }
 
 type ParticionMontada struct {
-	Identificador   string
-	Name, Tipo, Fit string
-	Estado          byte
-	EstadoEscrito   bool
-	Porcentaje      float32
-	Tamaño          int64
-	BitStar         int64
+	Identificador           string
+	Name, Tipo, Fit, DiscoR string
+	Estado                  byte
+	EstadoEscrito           bool
+	Porcentaje              float32
+	Tamaño                  int64
+	BitStar                 int64
 }

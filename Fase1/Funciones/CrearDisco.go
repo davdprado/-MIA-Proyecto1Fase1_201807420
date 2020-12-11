@@ -17,6 +17,7 @@ import (
 
 var iddisco = 97
 var ListaDiscos []Estructuras.Disco
+var ListaPartM []Estructuras.ParticionMontada
 
 func CreateDisk(comando string) {
 	comando = strings.ReplaceAll(comando, "mkdisk ", "")
