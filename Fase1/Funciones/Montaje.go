@@ -56,6 +56,12 @@ func AMontar(ruta string, nombre string) {
 		file.Close()
 		return
 	}
+	for _, parti := range ListaPartM {
+		if parti.Name == nombre && parti.DiscoR == ruta {
+			fmt.Println("La particion ya esta montada")
+			return
+		}
+	}
 	file.Close()
 	indice := BuscarenLista(ruta)
 	letra := ListaDiscos[indice].Identificador
@@ -65,6 +71,7 @@ func AMontar(ruta string, nombre string) {
 	Ident := "vd" + string(letra) + strconv.Itoa(nume)
 	NuevoPartM.Identificador = Ident
 	NuevoPartM.DiscoR = ruta
+	NuevoPartM.Name = nombre
 	ListaPartM = append(ListaPartM, NuevoPartM)
 	fmt.Println("Se monto la particion " + Ident + " Con exito")
 
@@ -73,14 +80,30 @@ func AMontar(ruta string, nombre string) {
 func Desmontaje(comando string) {
 	comando = strings.ReplaceAll(comando, "unmount ", "")
 	parametros := strings.Split(comando, " ")
-	if len(parametros) >= 1 {
+	if len(parametros) > 1 {
 		fmt.Println("Un parametro no pertenece")
 	} else {
 		ParamVerificationUnmount(parametros)
 	}
 }
 func ParamVerificationUnmount(parametros []string) {
-
+	var id string
+	for _, parametro := range parametros {
+		//fmt.Println("Evaluo " + parametro)
+		if strings.HasPrefix(parametro, "-id->") {
+			id = strings.ReplaceAll(parametro, "-id->", "")
+			for _, particion := range ListaPartM {
+				if particion.Identificador == id {
+					particion.Identificador = ""
+					fmt.Println("Se desmonto")
+					return
+				}
+			}
+		} else {
+			fmt.Println("Parametro Desconocido")
+			return
+		}
+	}
 }
 
 func BuscarenLista(ruta string) int {

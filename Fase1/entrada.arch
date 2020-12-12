@@ -1,6 +1,6 @@
 #Contenido de calificacion.arch
 #Crea tres discos de 30 Mb
-mkdisk -Size->1 -unit->M -path->/home/Disco1.dsk
+mkdisk -Size->5 -unit->M -path->/home/Disco1.dsk
 mkdisk -unit->K -path->/home/Disco2.dsk -size->100
 mkDisk -size->1 -patH->/home/archivos/otrawea/Disco3.dsk
 #Debería dar error
@@ -10,18 +10,24 @@ pause
 rmDisk -patH->/home/Disco4.dsk
 rmDisk -patH->/home/archivos/otrawea/Disco3.dsk
 #Crear particiones
-fdisk -Size->10240 -path->/home/Disco1.dsk -name->Part1
-fdisk -type->E -path->/home/Disco1.dsk -Unit->K -name->Part2 -size->10240
-fdisk -type->L -path->/home/Disco1.dsk -Unit->K -name->Part3 -size->10240
+fdisk -Size->1024 -path->/home/Disco1.dsk -name->Part1
+fdisk -type->E -path->/home/Disco1.dsk -Unit->k -name->Part2 -size->1024
+fdisk -type->P -path->/home/Disco1.dsk -Unit->K -name->Part3 -size->1024
 fdisk -Size->10240 -path->/home/Disco2.dsk -name->Part1
-fdisk -Size->10240 -path->/home/Disco2.dsk -name->Part1
+fdisk -Size->10240 -path->/home/Disco2.dsk -name->Part2
 pause
 mount -path->/home/Disco1.dsk -name->Part1
-mount -path->/home/Disco1.dsk -name->Part2
-mount -path->/home/Disco2.dsk -name->Part1
+mount -path->/home/Disco2.dsk -name->Part2
 pause
 rep -id->vda1 -Path->/home/mia/mbr.jpg -name->mbr
+pause
 rep -id->vda1 -Path->/home/mia/disk.jpg -name->disk
+pause
+unmount -id->vdb1
+pause
+fdisk -delete->fast -Size->1024 -path->/home/Disco1.dsk -name->Part2
+pause
+rep -id->vda1 -Path->/home/mia/mbrs.jpg -name->mbr
 pause
 rmDisk -patH->/home/Disco1.dsk
 rmDisk -patH->/home/Disco2.dsk

@@ -75,8 +75,11 @@ func AdminParamVerification(param []string) {
 
 		} else if strings.HasPrefix(parametro, "-type->") {
 			tipos := strings.ReplaceAll(parametro, "-type->", "")
-			if tipos == "p" || tipos == "e" || tipos == "l" {
+			if tipos == "p" || tipos == "e" {
 				tipo = tipos
+			} else if tipos == "l" {
+				fmt.Println("Es Logica")
+				return
 			} else {
 				fmt.Println("tipo invalido")
 				return
@@ -113,7 +116,14 @@ func secondRevision(ruta string, nombrep string, size int, unidad string, isdele
 	} else if isadd {
 		ModificarParticion()
 	} else {
-		CrearParticion(nombrep, size, unidad, ajuste, tipoParticion, ruta)
+		if unidad == "b" {
+			CrearParticion(nombrep, size, unidad, ajuste, tipoParticion, ruta)
+		} else if unidad == "m" {
+			CrearParticion(nombrep, size*1024*1024, unidad, ajuste, tipoParticion, ruta)
+		} else if unidad == "k" {
+			CrearParticion(nombrep, size*1024, unidad, ajuste, tipoParticion, ruta)
+		}
+
 	}
 
 }
@@ -137,7 +147,6 @@ func CrearParticion(nombre string, tama int, tipoF string, tipotam string, tipoP
 		file.Close()
 		return
 	}
-
 	particionnnn := Estructuras.ParticionMontada{}
 	particionnnn.Estado = '1'
 	particionnnn.Tamaño = int64(tama)
@@ -152,11 +161,6 @@ func CrearParticion(nombre string, tama int, tipoF string, tipotam string, tipoP
 	copy(particiontemp.PartType[:], tipoP)
 	copy(particiontemp.PartFit[:], tipoF)
 	copy(particiontemp.PartName[:], nombre)
-	if tipotam == "k" {
-		tama = tama * 1024
-	} else if tipotam == "m" {
-		tama = tama * 1024 * 1024
-	}
 	particiontemp.PartSize = int64(tama)
 	particiontemp.PartStart = discotemp.Mbit
 	discotemp.Mbit = int64(unsafe.Sizeof(particiontemp)) + discotemp.Mbit
@@ -192,9 +196,15 @@ func EliminarParticion(nombre string, ruta string) {
 	//fmt.Printf("Fecha: %s Tamaño: %d Random: %d\n", discotemp.Mfecha, discotemp.Mtamano, discotemp.MdiscoA)
 	particiontemp := Estructuras.Particion{}
 	particiontemp.PartStatus = '0'
+	var nomp [16]byte
+	for k, v := range []byte(nombre) {
+		nomp[k] = byte(v)
+	}
 	copy(particiontemp.PartName[:], "Libre")
 	for i := 0; i < 4; i++ {
-		if discotemp.MParticiones[i].PartStatus == '0' {
+		if discotemp.MParticiones[i].PartName == nomp {
+			sisou := discotemp.MParticiones[i].PartSize
+			particiontemp.PartSize = sisou
 			discotemp.MParticiones[i] = particiontemp
 			break
 		}
